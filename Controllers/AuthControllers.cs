@@ -72,6 +72,12 @@ public class AuthControllers : ControllerBase
         {
             return BadRequest("Invalid username or password");
         }
+        var response = new LogResp
+        {
+            Id = user.Id,
+            Name = user.Name
+        };
+        return Ok(response);
         }catch(Exception ex)
         {
             return StatusCode(503, "Service not available try agin later");
