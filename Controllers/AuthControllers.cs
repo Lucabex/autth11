@@ -24,7 +24,9 @@ public class AuthControllers : ControllerBase
     public async Task<IActionResult> RegUser(RegUser dto)
     {
 
-        if(string.IsNullOrEmpty(dto.Name) || string.IsNullOrEmpty(dto.Password))
+        try
+        {
+            if(string.IsNullOrEmpty(dto.Name) || string.IsNullOrEmpty(dto.Password))
         {
             return BadRequest("please add username and password");
         }
@@ -50,5 +52,30 @@ public class AuthControllers : ControllerBase
 
         return Ok(response);
 
+        }catch(Exception ex)
+        {
+            return StatusCode(503,"Service not available try again later");
+        }
+        
+    }
+    [HttpPost("log")]
+    public async Task<IActionResult> LogUser(LogDto dto)
+    {
+        if(string.IsNullOrEmpty(dto.Name) || string.IsNullOrEmpty(dto.Password))
+        {
+            return BadRequest("Username and password are mandatory");
+        }
+        var user = await _context.User.FirstOrDefaultAsync(u=> (u.Name ?? "").ToLower() == dto.Name);
+        try
+        {
+             if(user == null || !BCrypt.Net.BCrypt.Verify(dto.Password , user.HashedPassword))
+        {
+            return BadRequest("Invalid username or password");
+        }
+        }catch(Exception ex)
+        {
+            return StatusCode(503, "Service not available try agin later");
+        }
+       
     }
 }
