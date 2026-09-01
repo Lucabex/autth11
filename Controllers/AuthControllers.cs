@@ -84,4 +84,18 @@ public class AuthControllers : ControllerBase
         }
        
     }
+
+    [HttpGet("puzzle")]
+    public async Task<IActionResult> GetPuzzle()
+    {
+        var client = _client.CreateClient();
+        var url= "https://lichess.org/api/puzzle/daily";
+        var response = await client.GetFromJsonAsync<DailyPuzzle>(url);
+
+        if (response?.Puzzle?.Solution == null || response?.Puzzle?.Fen == null)
+        {
+            return StatusCode(503,"Service not available try again later");
+        }
+        return Ok(response);
+    }
 }
